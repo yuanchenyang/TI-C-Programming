@@ -1,18 +1,10 @@
 #define SAVE_SCREEN         // this directive forces saving/restoring the screen
 #define USE_TI89            // produce all types of files
 
-#define MAXINPUT 100
-#define MAXSTACK 100
-
-#define NUMBER 0
-#define CHARACTER 1
-#define EXIT 2
-
-#define ESC 8
-
 #include <stdio.h>
-#include <stdlib.h>
 #include <kbd.h>            // keyboard handling support, needed for ngetchx
+#include <timath.h>
+#include "calc.h"
 
 struct token {
   int type;
@@ -28,32 +20,31 @@ int isnumberc(char c) {
 }
 
 int isnumberstart(char c) { 
-  return isnumberc(c) || c == -83 ; // number or negative
+  return isnumberc(c) || c == NEG_SIGN ; // number or negative
 } 
 
 struct token get_token() {
   char buf[MAXINPUT];
   char curr;
-  int bufp = 0;
   int dots = 0;
   struct token t;
   
   printf("> ");
-  buf[bufp++] = curr = getchar();
+  curr = getchar();
   if (curr == ESC) {
-    t.type = EXIT;    
+    t.type = EXIT;
   } else if (isnumberstart(curr)) {
-    while (1) {
-      buf[bufp++] = curr = getchar();
-      if (curr == '.' && dots == 0)
-        dots++;
-      else if (!isnumberc(curr))
-        break;      
+    buf[0] = curr;
+    getsn(&buf[1], MAXINPUT);
+    float n = atof(buf);
+    if (is_nan(n)) {
+      t.type = CHARACTER;
+      t.character = '\0';
     }
-    buf[bufp] = '\0';
-    printf("%s", buf);
-    t.type = NUMBER;
-    t.number = atof(buf);
+    else {
+      t.type = NUMBER;
+      t.number = n;
+    }
   } else {
     t.type = CHARACTER;
     t.character = curr;    
@@ -94,6 +85,9 @@ _main()
       push(t.number);
     } else {
       switch (t.character) {
+      case BACKSPACE:
+        pop();
+        break;
       case '+':
         push(pop() + pop());
         break;
@@ -107,16 +101,16 @@ _main()
       case '/':
         temp = pop();
         if (temp == 0) {
-          printf("Cannot divide by zero!\n");
+          // Cannot divide by zero
           push(temp);
         } else {
           push(pop() / temp);
         }        
         break;
-      default:
-        printf("Invalid character\n");
-        break;
-      }
+      case POWER:
+        temp = pop();
+        push(pow(pop(), temp));
+      }      
     }
     clrscr();
     printstack();
