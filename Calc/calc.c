@@ -17,14 +17,6 @@ double numstack[MAXSTACK];
 int sp = 0;
 char message[MAXMESSAGE];
 
-int isnumberc(char c) {
-  return (c >= '0') && (c <= '9');
-}
-
-int isnumberstart(short c) { 
-  return isnumberc(c) || c == KEY_SIGN ; // number or negative
-}
-
 struct token get_token() {
   char buf[MAXINPUT];
   short curr;
@@ -36,7 +28,8 @@ struct token get_token() {
   if (curr == KEY_ESC) {
     t.type = EXIT;
   } else if (isnumberstart(curr)) {
-    buf[0] = curr;
+    printf("%c", curr);
+    buf[0] = (char)curr;
     getsn(&buf[1], MAXINPUT);
     float n = atof(buf);
     if (is_nan(n)) {
@@ -67,7 +60,7 @@ void printstack() {
 
 void push(double f) {
   if (sp + 1 >= MAXSTACK)
-    strcpy(message, "Stack Overflow!\n");
+    printerror("Stack Overflow!\n");
   else
     numstack[++sp] = f;
 }
@@ -109,7 +102,7 @@ _main()
       case '/':
         temp = pop();
         if (temp == 0) {
-          strcpy(message, "Cannot divide by zero\n");
+          printerror("Cannot divide by zero\n");
           push(temp);
         } else {
           push(pop() / temp);
@@ -118,6 +111,37 @@ _main()
       case '^':
         temp = pop();
         push(pow(pop(), temp));
+        break;
+      case KEY_PI:
+        push(PI);
+        break;
+      case KEY_EXP:
+        push(exp(1));
+        break;
+      case KEY_LN:
+        push(log(pop()));
+        break;
+      case KEY_SIN:
+        push(sin(pop()));
+        break;
+      case KEY_COS:
+        push(cos(pop()));
+        break;
+      case KEY_TAN:
+        push(tan(pop()));
+        break;
+      case KEY_ARCSIN:
+        push(asin(pop()));
+        break;
+      case KEY_ARCCOS:
+        push(acos(pop()));
+        break;
+      case KEY_ARCTAN:
+        push(atan(pop()));
+        break;
+      case KEY_SQRT:
+        push(sqrt(pop()));
+        break;        
       }      
     }    
     printstack();
