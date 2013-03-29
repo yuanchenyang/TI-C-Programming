@@ -1,5 +1,5 @@
 #define MAXINPUT 100
-#define MAXSTACK 100
+#define MAXSTACK 20
 #define MAXMESSAGE 100
 
 #define NUMBER 0
@@ -19,5 +19,5 @@
 
 #define isnumberc(c) (((c) >= '0') && ((c) <= '9'))
 #define isnumberstart(c) (isnumberc(c) || (c) == KEY_SIGN || (c) == '.') 
-#define printerror(m) strcpy(message, #m)
+#define printerror(m) strcpy(message, m)
 
