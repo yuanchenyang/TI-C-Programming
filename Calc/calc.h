@@ -17,7 +17,8 @@
 #define KEY_ARCTAN 16468
 #define KEY_SQRT 4138
 
-#define isnumberc(c) (((c) >= '0') && ((c) <= '9'))
-#define isnumberstart(c) (isnumberc(c) || (c) == KEY_SIGN || (c) == '.') 
+#define isnumberc(c) ((c) >= '0' && (c) <= '9')
+#define isnumberstart(c) (isnumberc(c) || (c) == KEY_SIGN || (c) == '.')
+#define islowerletter(c) ((c) >= 'a' && (c) <= 'z')
 #define printerror(m) strcpy(message, m)
 

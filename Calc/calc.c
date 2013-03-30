@@ -16,6 +16,7 @@ struct token {
 double numstack[MAXSTACK];
 int sp = 0;
 char message[MAXMESSAGE];
+double vars[26];
 
 struct token get_token() {
   char buf[MAXINPUT];
@@ -48,6 +49,15 @@ struct token get_token() {
   return t;
 }
 
+char get_lower_letter() {
+  printf("Store to: ");
+  char c;
+  do {
+    c = ngetchx();
+  } while (! islowerletter(c));
+  return c;
+}
+
 void printstack() {
   int i;
   for (i = 1; i <= sp; ++i) {
@@ -71,21 +81,31 @@ double pop() {
   }
   return numstack[sp--];
 }
+
+double peek() {
+  return numstack[sp];
+}
  
 _main()
 {
   struct token t;
   double temp;
+  char c;
   clrscr();
   while ((t = get_token()).type != EXIT) {
     // printf("Char: %i\nNumber: %f", t.character, t.number); 
     // ngetchx();
-    clrscr();
     message[0] = '\0';
-    if (t.type == NUMBER) {
+    if (t.type == NUMBER) 
       push(t.number);
-    } else {
+    else if (islowerletter(t.character))
+      push(vars[t.character - 'a']);
+    else {
       switch (t.character) {
+      case KEY_STO:
+        c = get_lower_letter();
+        vars[c - 'a'] = pop();
+        break;
       case KEY_BACKSPACE:
         pop();
         break;
@@ -143,7 +163,8 @@ _main()
         push(sqrt(pop()));
         break;        
       }      
-    }    
+    }
+    clrscr();
     printstack();
     printf("%s", message);
   }
