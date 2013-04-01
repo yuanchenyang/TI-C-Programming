@@ -1,5 +1,6 @@
 #define SAVE_SCREEN         // this directive forces saving/restoring the screen
 #define USE_TI89
+#define OPTIMIZE_ROM_CALLS
 
 #include <stdio.h>
 #include <kbd.h>
@@ -17,6 +18,7 @@ double numstack[MAXSTACK];
 int sp = 0;
 char message[MAXMESSAGE];
 double vars[26];
+short sci = 0; // Scientific representation
 
 struct token get_token() {
   char buf[MAXINPUT];
@@ -50,7 +52,7 @@ struct token get_token() {
 }
 
 char get_lower_letter() {
-  printf("Store to: ");
+  printf("Store");
   char c;
   do {
     c = ngetchx();
@@ -61,7 +63,10 @@ char get_lower_letter() {
 void printstack() {
   int i;
   for (i = 1; i <= sp; ++i) {
-    printf ("%.12g\n", numstack[i]);
+    if (sci)
+      printf ("%i:%.12e\n", i, numstack[i]);
+    else
+      printf ("%i:%.12g\n", i, numstack[i]);
   }
 }
 
@@ -89,7 +94,7 @@ double peek() {
 _main()
 {
   struct token t;
-  double temp;
+  double temp, temp1;
   char c;
   clrscr();
   while ((t = get_token()).type != EXIT) {
@@ -102,9 +107,20 @@ _main()
       push(vars[t.character - 'a']);
     else {
       switch (t.character) {
-      case KEY_STO:
+      case '=': case KEY_STO:
         c = get_lower_letter();
         vars[c - 'a'] = pop();
+        break;
+      case '|':
+        if (sp > 1) {
+          temp = pop();
+          temp1 = pop();
+          push(temp);
+          push(temp1);
+        }
+        break;
+      case KEY_EE:
+        sci = ! sci;
         break;
       case KEY_BACKSPACE:
         pop();
